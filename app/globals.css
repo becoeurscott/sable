@@ -1,0 +1,151 @@
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body { margin: 0; padding: 0; background: #FFFFFF; }
+body {
+  font-family: var(--font-plex), system-ui, sans-serif;
+  color: #0B1220;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: #2F6BFF; text-decoration: none; }
+a:hover { color: #1B4DE0; }
+::selection { background: #2F6BFF; color: #fff; }
+
+.mono { font-family: var(--font-mono), monospace; }
+
+@keyframes sbFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes sbFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sbGlow { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes sbSpin { to { transform: rotate(360deg); } }
+@keyframes sbBlink { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+@keyframes sbBar { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes sbSweep { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+.sb-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.sb-scroll::-webkit-scrollbar-thumb { background: #C7D0DE; border-radius: 8px; }
+
+/* Reset for elements used with inline styles */
+button { font-family: inherit; }
+input { font-family: inherit; }
+
+/* ---- Scroll reveal ---- */
+.sb-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity .75s cubic-bezier(.16,.84,.44,1), transform .75s cubic-bezier(.16,.84,.44,1);
+  will-change: opacity, transform;
+}
+.sb-reveal.is-visible { opacity: 1; transform: none; }
+
+/* ---- Hover motion (makes cards/buttons feel live, not static) ---- */
+.sb-card {
+  transition: transform .28s cubic-bezier(.16,.84,.44,1), box-shadow .28s cubic-bezier(.16,.84,.44,1), border-color .28s ease;
+}
+.sb-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 46px -24px rgba(11,16,32,.30);
+}
+.sb-btn {
+  transition: transform .14s ease, box-shadow .22s ease, filter .22s ease;
+  will-change: transform;
+}
+.sb-btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+.sb-btn:active { transform: translateY(0) scale(.99); }
+.sb-navlink { transition: color .18s ease; }
+.sb-navlink:hover { color: #0B1220 !important; }
+.sb-logo { transition: transform .3s cubic-bezier(.16,.84,.44,1); }
+.sb-logo:hover { transform: scale(1.05) rotate(-3deg); }
+
+/* ---- Loading splash ---- */
+@keyframes sbSplashPulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: .85; } }
+@keyframes sbTrackFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* ---- Route progress bar ---- */
+@keyframes sbRouteBar {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(0%); }
+}
+
+/* ---- Skeleton shimmer ---- */
+.sb-skeleton {
+  background: linear-gradient(100deg, #EDF1F7 30%, #F6F8FC 50%, #EDF1F7 70%);
+  background-size: 200% 100%;
+  animation: sbSweep 1.4s ease infinite;
+  border-radius: 8px;
+}
+
+/* ---- Respect reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .sb-reveal { opacity: 1; transform: none; transition: none; }
+  .sb-card:hover, .sb-btn:hover, .sb-logo:hover { transform: none; }
+  * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+}
+
+/* ============================================================
+   RESPONSIVE
+   Base (desktop) column counts come from each element's inline
+   style; these rules override them at smaller breakpoints. The
+   `!important` is what lets a stylesheet win over inline styles.
+   ============================================================ */
+
+/* Fluid headings so big display type never overflows narrow screens */
+.sb-h1 { font-size: clamp(32px, 8.5vw, 59px) !important; }
+.sb-h2 { font-size: clamp(25px, 5.6vw, 44px) !important; }
+
+/* Wide tables: let them scroll sideways instead of breaking the layout */
+.sb-xscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.sb-xscroll-inner { min-width: 600px; }
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .r-aside { grid-template-columns: 1fr !important; }
+  .r-5 { grid-template-columns: 1fr 1fr 1fr !important; }
+}
+
+/* Small tablet / large phone */
+@media (max-width: 860px) {
+  .r-3 { grid-template-columns: 1fr 1fr !important; }
+  .r-5 { grid-template-columns: 1fr 1fr !important; }
+  .r-2 { grid-template-columns: 1fr !important; }
+  .r-form { grid-template-columns: 1fr !important; }
+  .r-usage { grid-template-columns: 1fr !important; }
+  .r-4, .r-kpi { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* Phone */
+@media (max-width: 620px) {
+  .r-3 { grid-template-columns: 1fr !important; }
+  .r-5 { grid-template-columns: 1fr !important; }
+  .r-4 { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* Marketing nav: hide secondary links on phones, keep logo + primary CTA */
+@media (max-width: 720px) {
+  .sb-nav-links { display: none !important; }
+  .sb-nav-signin { display: none !important; }
+}
+
+/* App shell: sidebar becomes an off-canvas drawer under 900px */
+.sb-hamburger { display: none; }
+.sb-nav-overlay { display: none; }
+@media (max-width: 900px) {
+  .sb-sidebar {
+    position: fixed !important;
+    left: 0;
+    top: 0;
+    z-index: 90;
+    transform: translateX(-100%);
+    transition: transform .3s cubic-bezier(.16,.84,.44,1);
+    box-shadow: 0 0 60px rgba(0,0,0,.45);
+  }
+  .sb-sidebar.open { transform: translateX(0); }
+  .sb-hamburger { display: inline-flex !important; }
+  .sb-topbar-search { display: none !important; }
+  .sb-nav-overlay.show { display: block; }
+}
+
+/* Tighter gutters on phones */
+@media (max-width: 620px) {
+  .sb-main { padding: 18px 16px 48px !important; }
+  .sb-topbar { padding: 0 16px !important; }
+}
