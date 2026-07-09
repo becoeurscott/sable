@@ -39,6 +39,11 @@ const ROUTES: RouteDef[] = [
   { method: 'post', path: '/organizations/{id}/invite', tag: 'Organizations', summary: 'Invite member by email', auth: 'admin', params: ['id'], rate: '20/min', body: { email: 'string', role: 'owner|admin|accountant|manager|employee' } },
   { method: 'delete', path: '/organizations/{id}/members/{userId}', tag: 'Organizations', summary: 'Remove member', auth: 'admin', params: ['id', 'userId'], rate: '20/min' },
 
+  // API keys
+  { method: 'get', path: '/organizations/{id}/api-keys', tag: 'API Keys', summary: 'List API keys', auth: 'admin', params: ['id'], rate: '30/min' },
+  { method: 'post', path: '/organizations/{id}/api-keys', tag: 'API Keys', summary: 'Create API key (plaintext returned once)', auth: 'admin', params: ['id'], rate: '10/min', body: { name: 'string', role: 'admin|accountant|manager|employee', readOnly: 'boolean', expiresAt: 'string?' } },
+  { method: 'delete', path: '/organizations/{id}/api-keys/{keyId}', tag: 'API Keys', summary: 'Revoke API key', auth: 'admin', params: ['id', 'keyId'], rate: '20/min' },
+
   // Dashboard
   { method: 'get', path: '/dashboard', tag: 'Dashboard', summary: 'KPI summary', auth: 'member', org: true, rate: '60/min', query: [['from', 'string', 'YYYY-MM-DD'], ['to', 'string', 'YYYY-MM-DD']] },
   { method: 'get', path: '/dashboard/cashflow', tag: 'Dashboard', summary: 'Monthly cash-flow series', auth: 'member', org: true, rate: '60/min', query: [['months', 'integer', '1-36']] },
@@ -151,7 +156,7 @@ function buildPaths() {
       tags: [r.tag],
       summary: r.summary,
       description: authDescription(r),
-      security: r.auth === 'none' ? [] : [{ bearerAuth: [] }],
+      security: r.auth === 'none' ? [] : [{ bearerAuth: [] }, { apiKeyAuth: [] }],
       ...(parameters.length ? { parameters } : {}),
       ...(r.body ? { requestBody: schemaForBody(r.body) } : {}),
       responses: {
@@ -179,12 +184,18 @@ export const openapiSpec = {
   },
   servers: [{ url: '/api/v1', description: 'This server' }],
   tags: [
-    'Auth', 'Organizations', 'Dashboard', 'Expenses', 'Invoices', 'Revenues',
+    'Auth', 'Organizations', 'API Keys', 'Dashboard', 'Expenses', 'Invoices', 'Revenues',
     'Reports', 'AI', 'Billing', 'Notifications', 'Webhooks',
   ].map((name) => ({ name })),
   components: {
     securitySchemes: {
       bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      apiKeyAuth: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-API-Key',
+        description: 'Programmatic access. Send your key (sbl_…) here, or as `Authorization: Bearer sbl_…`. The key is bound to one organization, so no X-Org-Id is needed.',
+      },
     },
     schemas: {
       Error: {

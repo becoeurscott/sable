@@ -79,6 +79,19 @@ curl -s localhost:4000/api/v1/auth/signup -H 'content-type: application/json' \
 
 ---
 
+## API keys (programmatic access, §2)
+
+External apps/scripts can authenticate with a long-lived **API key** instead of a user login. Keys are org-scoped with a role + optional read-only flag; only the SHA-256 hash is stored (plaintext shown once).
+
+- **Create/manage:** in the app under **Settings → API keys** (admin+), or `POST /organizations/:id/api-keys`.
+- **Use:** send the key as `X-API-Key: sbl_…` **or** `Authorization: Bearer sbl_…`. No `X-Org-Id` needed — the key pins the org.
+
+```bash
+curl https://your-api/api/v1/dashboard -H "X-API-Key: sbl_xxxxxxxx…"
+```
+
+A read-only key rejects any non-GET request with `403`. Revoke anytime in Settings or `DELETE /organizations/:id/api-keys/:keyId`.
+
 ## REST API (§10)
 
 Base: `/api/v1`. Auth: `Authorization: Bearer <accessToken>`. Tenant: `X-Org-Id: <uuid>` header (org-scoped resources) or the `:id` path segment (org routes). Every route is rate-limited per the §10 budgets.

@@ -33,3 +33,7 @@ coverage/
 Thumbs.db
 .idea/
 .vscode/
+
+# stray reference images
+*.jpeg
+*.jpg

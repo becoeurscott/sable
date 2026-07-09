@@ -19,6 +19,15 @@ export function requireOrg(opts: Options = {}) {
   return asyncHandler(async (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user) throw unauthorized();
 
+    // API keys are bound to one org with a fixed role — use that directly.
+    if (req.apiKey) {
+      if (opts.param && req.params[opts.param] && req.params[opts.param] !== req.apiKey.orgId) {
+        throw forbidden('API key does not grant access to this organization');
+      }
+      req.org = { id: req.apiKey.orgId, role: req.apiKey.role };
+      return next();
+    }
+
     const orgId = opts.param
       ? (req.params[opts.param] as string | undefined)
       : req.header('x-org-id');

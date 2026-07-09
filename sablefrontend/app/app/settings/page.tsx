@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { DISPLAY } from "../../theme";
-import { orgApi, ApiError, type MemberRow } from "../../lib/api";
+import { orgApi, apiKeysApi, ApiError, type MemberRow, type ApiKeyView } from "../../lib/api";
 import { useAuth } from "../../lib/auth-context";
 
 const ROLES = ["admin", "accountant", "manager", "employee"] as const;
@@ -18,6 +18,13 @@ export default function Settings() {
   const [inviteRole, setInviteRole] = useState<(typeof ROLES)[number]>("employee");
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
+  // API keys
+  const [keys, setKeys] = useState<ApiKeyView[]>([]);
+  const [keyName, setKeyName] = useState("");
+  const [keyRole, setKeyRole] = useState<(typeof ROLES)[number]>("accountant");
+  const [keyReadOnly, setKeyReadOnly] = useState(false);
+  const [newKey, setNewKey] = useState<string | null>(null);
+
   const loadMembers = useCallback(async () => {
     if (!orgId) return;
     try {
@@ -26,9 +33,38 @@ export default function Settings() {
     } catch {/* ignore */}
   }, [orgId]);
 
+  const loadKeys = useCallback(async () => {
+    if (!orgId) return;
+    try {
+      const { apiKeys } = await apiKeysApi.list(orgId);
+      setKeys(apiKeys);
+    } catch {/* ignore */}
+  }, [orgId]);
+
   useEffect(() => {
     void loadMembers();
-  }, [loadMembers]);
+    void loadKeys();
+  }, [loadMembers, loadKeys]);
+
+  const createKey = async () => {
+    if (!orgId || !keyName) return;
+    try {
+      const { key } = await apiKeysApi.create(orgId, { name: keyName, role: keyRole, readOnly: keyReadOnly });
+      setNewKey(key);
+      setKeyName("");
+      await loadKeys();
+    } catch (err) {
+      setMsg({ kind: "err", text: err instanceof ApiError ? err.message : "Could not create key" });
+    }
+  };
+
+  const revokeKey = async (id: string) => {
+    if (!orgId) return;
+    try {
+      await apiKeysApi.revoke(orgId, id);
+      await loadKeys();
+    } catch {/* ignore */}
+  };
 
   const saveOrg = async () => {
     if (!orgId) return;
@@ -123,6 +159,53 @@ export default function Settings() {
           <button onClick={invite} style={{ border: "none", cursor: "pointer", fontWeight: 600, fontSize: 13.5, color: "#fff", background: "#0B1220", padding: "10px 16px", borderRadius: 9, height: 40 }}>Invite</button>
         </div>
         <div style={{ fontSize: 12, color: "#8A93A3", marginTop: 8 }}>The person must already have a Sable account to be invited.</div>
+      </div>
+
+      {/* API keys */}
+      <div style={card}>
+        <div style={{ fontFamily: DISPLAY, fontWeight: 600, fontSize: 16, marginBottom: 4 }}>API keys</div>
+        <div style={{ fontSize: 13, color: "#8A93A3", marginBottom: 16 }}>
+          Programmatic access for scripts &amp; external apps. Send as <code style={{ background: "#F1F4F9", padding: "1px 5px", borderRadius: 5 }}>X-API-Key</code> or <code style={{ background: "#F1F4F9", padding: "1px 5px", borderRadius: 5 }}>Authorization: Bearer</code>. No org header needed — the key is bound to this org.
+        </div>
+
+        {newKey && (
+          <div style={{ background: "#0F1830", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+            <div style={{ fontSize: 12, color: "#5DE0A8", fontWeight: 600, marginBottom: 8 }}>✓ Key created — copy it now, it won't be shown again</div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <code className="mono" style={{ flex: 1, color: "#E8EDF6", fontSize: 13, wordBreak: "break-all" }}>{newKey}</code>
+              <button onClick={() => navigator.clipboard?.writeText(newKey)} style={{ border: "none", cursor: "pointer", fontWeight: 600, fontSize: 12, color: "#fff", background: "#2F6BFF", padding: "7px 12px", borderRadius: 8 }}>Copy</button>
+              <button onClick={() => setNewKey(null)} style={{ border: "1px solid #2A3A5E", cursor: "pointer", fontSize: 12, color: "#9AA6BC", background: "transparent", padding: "7px 10px", borderRadius: 8 }}>Done</button>
+            </div>
+          </div>
+        )}
+
+        {keys.filter((k) => !k.revokedAt).map((k) => (
+          <div key={k.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid #F1F4F9" }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>{k.name} {k.readOnly && <span style={{ fontSize: 11, color: "#8A93A3" }}>· read-only</span>}</div>
+              <div className="mono" style={{ fontSize: 12, color: "#8A93A3" }}>{k.prefix}…  ·  {k.role}  ·  {k.lastUsedAt ? `used ${new Date(k.lastUsedAt).toLocaleDateString()}` : "never used"}</div>
+            </div>
+            <button onClick={() => revokeKey(k.id)} style={{ border: "1px solid #F3D2D2", background: "#fff", color: "#D64545", cursor: "pointer", fontSize: 12, fontWeight: 600, padding: "6px 10px", borderRadius: 8 }}>Revoke</button>
+          </div>
+        ))}
+        {keys.filter((k) => !k.revokedAt).length === 0 && <div style={{ fontSize: 13, color: "#8A93A3", padding: "4px 0 12px" }}>No active keys.</div>}
+
+        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr auto auto", gap: 10, marginTop: 14, alignItems: "end" }}>
+          <div>
+            <label style={label}>New key name</label>
+            <input value={keyName} onChange={(e) => setKeyName(e.target.value)} placeholder="e.g. Zapier integration" style={input} />
+          </div>
+          <div>
+            <label style={label}>Role</label>
+            <select value={keyRole} onChange={(e) => setKeyRole(e.target.value as (typeof ROLES)[number])} style={input}>
+              {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
+          <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#5A6472", height: 40, whiteSpace: "nowrap" }}>
+            <input type="checkbox" checked={keyReadOnly} onChange={(e) => setKeyReadOnly(e.target.checked)} /> read-only
+          </label>
+          <button onClick={createKey} style={{ border: "none", cursor: "pointer", fontWeight: 600, fontSize: 13.5, color: "#fff", background: "#0B1220", padding: "10px 16px", borderRadius: 9, height: 40 }}>Create</button>
+        </div>
       </div>
 
       {/* Integrations + Security (roadmap-gated) */}

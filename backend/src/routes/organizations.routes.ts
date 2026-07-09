@@ -1,11 +1,20 @@
 import { Router } from 'express';
 import * as ctrl from '../controllers/organization.controller.js';
+import * as apiKeyCtrl from '../controllers/apiKey.controller.js';
 import { requireAuth } from '../middleware/auth.js';
 import { requireOrg } from '../middleware/orgContext.js';
 import { requireRole } from '../middleware/rbac.js';
 import { validate } from '../middleware/validate.js';
 import { limit } from '../middleware/rateLimit.js';
-import { createOrgSchema, updateOrgSchema, inviteSchema, idParam, memberParam } from '../validators/schemas.js';
+import {
+  createOrgSchema,
+  updateOrgSchema,
+  inviteSchema,
+  idParam,
+  memberParam,
+  createApiKeySchema,
+  apiKeyParam,
+} from '../validators/schemas.js';
 
 export const orgRoutes = Router();
 orgRoutes.use(requireAuth);
@@ -42,4 +51,23 @@ orgRoutes.delete(
   inOrg,
   requireRole('admin'),
   ctrl.removeMember,
+);
+
+// ── API keys (admin+) ──
+orgRoutes.get('/:id/api-keys', limit(30), validate({ params: idParam }), inOrg, requireRole('admin'), apiKeyCtrl.list);
+orgRoutes.post(
+  '/:id/api-keys',
+  limit(10),
+  validate({ params: idParam, body: createApiKeySchema }),
+  inOrg,
+  requireRole('admin'),
+  apiKeyCtrl.create,
+);
+orgRoutes.delete(
+  '/:id/api-keys/:keyId',
+  limit(20),
+  validate({ params: apiKeyParam }),
+  inOrg,
+  requireRole('admin'),
+  apiKeyCtrl.revoke,
 );

@@ -256,6 +256,25 @@ export interface MemberRow {
   joined_at: string;
 }
 
+export interface ApiKeyView {
+  id: string;
+  name: string;
+  prefix: string;
+  role: string;
+  readOnly: boolean;
+  lastUsedAt: string | null;
+  expiresAt: string | null;
+  revokedAt: string | null;
+  createdAt: string;
+}
+
+export const apiKeysApi = {
+  list: (orgId: string) => http.get<{ apiKeys: ApiKeyView[] }>(`/organizations/${orgId}/api-keys`),
+  create: (orgId: string, body: { name: string; role: string; readOnly: boolean }) =>
+    http.post<{ key: string; apiKey: ApiKeyView }>(`/organizations/${orgId}/api-keys`, body),
+  revoke: (orgId: string, keyId: string) => http.del<null>(`/organizations/${orgId}/api-keys/${keyId}`),
+};
+
 export const orgApi = {
   listMine: () => http.get<{ organizations: BackendOrg[] }>("/organizations"),
   create: (name: string, currency = "USD") =>

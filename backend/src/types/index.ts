@@ -29,6 +29,7 @@ declare global {
     interface Request {
       user?: AuthUser;
       org?: OrgContext;
+      apiKey?: { id: string; orgId: string; role: Role; readOnly: boolean; createdBy: string };
       requestId?: string;
     }
   }

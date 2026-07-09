@@ -38,6 +38,15 @@ export const updateOrgSchema = z
 export const inviteSchema = z.object({ email, role: z.enum(ROLES) });
 export const memberParam = z.object({ id: uuid, userId: uuid });
 
+// ── API keys ─────────────────────────────────────────────────────────────────
+export const createApiKeySchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  role: z.enum(['admin', 'accountant', 'manager', 'employee']).default('accountant'),
+  readOnly: z.boolean().default(false),
+  expiresAt: isoDate.optional(),
+});
+export const apiKeyParam = z.object({ id: uuid, keyId: uuid });
+
 // ── Expenses ─────────────────────────────────────────────────────────────────
 export const createExpenseSchema = z.object({
   amount: money,
