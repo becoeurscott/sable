@@ -73,8 +73,9 @@ export function pgSsl(): false | { rejectUnauthorized: boolean } {
 export const isSupabaseTarget = (): boolean => env.DB_RLS_ROLE !== 'app_authenticated';
 
 export const authMode = env.AUTH_MODE;
-if (authMode === 'supabase' && !env.SUPABASE_JWT_SECRET) {
+if (authMode === 'supabase' && !env.SUPABASE_URL) {
+  // Needed to fetch the JWKS that verifies Supabase user tokens (ES256/RS256).
   // eslint-disable-next-line no-console
-  console.error('✗ AUTH_MODE=supabase requires SUPABASE_JWT_SECRET');
+  console.error('✗ AUTH_MODE=supabase requires SUPABASE_URL');
   process.exit(1);
 }

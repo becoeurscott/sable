@@ -1,6 +1,7 @@
 /** JWT + refresh-token helpers (§12 JWT auth: 1h access + rotating refresh). */
 import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
+import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
 import { env } from '../config/env.js';
 import type { AuthUser } from '../types/index.js';
 
@@ -22,20 +23,37 @@ export function verifyAccessToken(token: string): AuthUser {
   return { id: decoded.sub, email: decoded.email };
 }
 
-interface SupabaseClaims {
-  sub: string;
-  email?: string;
-  user_metadata?: { email?: string };
+// Supabase user access tokens are signed with the project's asymmetric JWT
+// signing keys (ES256/RS256) and published at the JWKS endpoint. Newer projects
+// use this; older ones sign with the HS256 shared secret. We support both.
+const jwks = env.SUPABASE_URL
+  ? createRemoteJWKSet(new URL(`${env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`))
+  : null;
+
+function toUser(payload: JWTPayload): AuthUser {
+  const meta = payload.user_metadata as { email?: string } | undefined;
+  return { id: String(payload.sub), email: (payload.email as string) ?? meta?.email ?? '' };
 }
 
-/** Verify a Supabase Auth access token (HS256, signed with the project JWT secret). */
-export function verifySupabaseToken(token: string): AuthUser {
-  if (!env.SUPABASE_JWT_SECRET) throw new Error('SUPABASE_JWT_SECRET not set');
-  const decoded = jwt.verify(token, env.SUPABASE_JWT_SECRET, {
-    algorithms: ['HS256'],
-    audience: 'authenticated',
-  }) as SupabaseClaims;
-  return { id: decoded.sub, email: decoded.email ?? decoded.user_metadata?.email ?? '' };
+/** Verify a Supabase Auth access token (async — may fetch/cache JWKS). */
+export async function verifySupabaseToken(token: string): Promise<AuthUser> {
+  const opts = { audience: 'authenticated' } as const;
+  // Prefer asymmetric verification via JWKS (ES256/RS256).
+  if (jwks) {
+    try {
+      const { payload } = await jwtVerify(token, jwks, opts);
+      return toUser(payload);
+    } catch (err) {
+      if (!env.SUPABASE_JWT_SECRET) throw err;
+      // fall through to legacy HS256
+    }
+  }
+  // Legacy HS256 shared-secret verification.
+  if (env.SUPABASE_JWT_SECRET) {
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(env.SUPABASE_JWT_SECRET), opts);
+    return toUser(payload);
+  }
+  throw new Error('No Supabase token verification method configured (set SUPABASE_URL)');
 }
 
 /** Opaque refresh token: random secret returned to client, only its hash stored. */
