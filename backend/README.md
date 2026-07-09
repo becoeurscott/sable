@@ -92,6 +92,18 @@ curl https://your-api/api/v1/dashboard -H "X-API-Key: sbl_xxxxxxxx…"
 
 A read-only key rejects any non-GET request with `403`. Revoke anytime in Settings or `DELETE /organizations/:id/api-keys/:keyId`.
 
+### Master developer key (for you, not customers)
+
+Set `ADMIN_API_KEY` in `.env` for a single key that grants **full access to any org** without logging in or being a member — for your own scripts/admin. Send it as `X-API-Key` (or `Bearer`) **plus** an `X-Org-Id` header naming the org:
+
+```bash
+curl http://localhost:4000/api/v1/dashboard \
+  -H "X-API-Key: $ADMIN_API_KEY" -H "X-Org-Id: <org-id>"
+```
+
+It acts as that org's owner (full read/write). Generate one with:
+`node -e "console.log('sbl_admin_'+require('crypto').randomBytes(32).toString('hex'))"`. Keep it secret; rotate by changing the env value.
+
 ## REST API (§10)
 
 Base: `/api/v1`. Auth: `Authorization: Bearer <accessToken>`. Tenant: `X-Org-Id: <uuid>` header (org-scoped resources) or the `:id` path segment (org routes). Every route is rate-limited per the §10 budgets.

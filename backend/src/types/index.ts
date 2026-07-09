@@ -30,6 +30,7 @@ declare global {
       user?: AuthUser;
       org?: OrgContext;
       apiKey?: { id: string; orgId: string; role: Role; readOnly: boolean; createdBy: string };
+      master?: boolean; // authenticated via the master dev key (full cross-org access)
       requestId?: string;
     }
   }

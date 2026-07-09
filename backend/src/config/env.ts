@@ -36,6 +36,10 @@ const schema = z.object({
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default('FinanceAI <onboarding@resend.dev>'),
 
+  // Master developer key: full access to any org (bypasses login/membership).
+  // Keep secret; only for your own scripts/admin. Unset = disabled.
+  ADMIN_API_KEY: z.string().min(24).optional(),
+
   RATE_LIMIT_STORE: z.enum(['memory', 'redis']).default('memory'),
   REDIS_URL: z.string().optional(),
 });
@@ -52,6 +56,7 @@ export const isProd = env.NODE_ENV === 'production';
 export const stripeEnabled = Boolean(env.STRIPE_SECRET_KEY);
 export const gemmaEnabled = Boolean(env.GEMMA_API_KEY);
 export const emailEnabled = Boolean(env.RESEND_API_KEY);
+export const masterKeyEnabled = Boolean(env.ADMIN_API_KEY);
 
 /** True when DATABASE_URL points at a remote host (not localhost). */
 export function isRemoteDb(): boolean {

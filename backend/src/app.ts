@@ -8,7 +8,7 @@ import express, { type Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
-import { env, gemmaEnabled, stripeEnabled, emailEnabled } from './config/env.js';
+import { env, gemmaEnabled, stripeEnabled, emailEnabled, masterKeyEnabled } from './config/env.js';
 import { logger } from './config/logger.js';
 import { apiRouter } from './routes/index.js';
 import { openapiSpec } from './docs/openapi.js';
@@ -69,7 +69,7 @@ export function createApp(): Express {
     res.json({
       status: 'ok',
       env: env.NODE_ENV,
-      integrations: { gemma: gemmaEnabled, stripe: stripeEnabled, email: emailEnabled },
+      integrations: { gemma: gemmaEnabled, stripe: stripeEnabled, email: emailEnabled, masterKey: masterKeyEnabled },
     });
   });
 

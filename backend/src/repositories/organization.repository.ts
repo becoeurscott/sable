@@ -61,6 +61,15 @@ export async function slugExists(slug: string): Promise<boolean> {
   return rows.length > 0;
 }
 
+/** Service-context owner lookup — used by the master key to impersonate for RLS. */
+export async function getOrgOwnerId(orgId: string): Promise<string | null> {
+  const rows = await query<{ owner_id: string }>(
+    `SELECT owner_id FROM public.organizations WHERE id = $1`,
+    [orgId],
+  );
+  return rows[0]?.owner_id ?? null;
+}
+
 export async function getOrganization(userId: string, orgId: string): Promise<OrganizationRow | null> {
   return asUser(userId, async (c) => {
     const res = await c.query<OrganizationRow>(`SELECT * FROM public.organizations WHERE id = $1`, [

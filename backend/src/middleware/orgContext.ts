@@ -6,8 +6,9 @@
  */
 import type { NextFunction, Request, Response } from 'express';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { forbidden, unauthorized } from '../utils/errors.js';
+import { forbidden, notFound, unauthorized } from '../utils/errors.js';
 import { getMembership } from '../repositories/membership.repository.js';
+import { getOrgOwnerId } from '../repositories/organization.repository.js';
 import type { Role } from '../types/index.js';
 
 interface Options {
@@ -31,6 +32,16 @@ export function requireOrg(opts: Options = {}) {
     const orgId = opts.param
       ? (req.params[opts.param] as string | undefined)
       : req.header('x-org-id');
+
+    // Master dev key: full access to whichever org is named, as its owner.
+    if (req.master) {
+      if (!orgId) throw forbidden('Master key requires an X-Org-Id header');
+      const ownerId = await getOrgOwnerId(orgId);
+      if (!ownerId) throw notFound('Organization not found');
+      req.user = { id: ownerId, email: 'master' }; // impersonate owner for RLS
+      req.org = { id: orgId, role: 'owner' };
+      return next();
+    }
 
     if (!orgId) {
       throw forbidden('Organization not specified (send X-Org-Id header or org id in path)');
