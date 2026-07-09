@@ -34,20 +34,16 @@ export default function LoginPage() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    wrap(
-      async () => {
-        if (mode === "signup") {
-          await signup(email, password, company || undefined, fullName || undefined);
-          if (usingSupabase) setNotice("Check your email to confirm your account, then log in.");
-        } else {
-          await login(email, password);
-        }
-      },
-      () => {
-        // Only redirect if we actually have a session (not pending email confirm).
-        if (!(mode === "signup" && usingSupabase)) router.push("/app/dashboard");
-      },
-    );
+    wrap(async () => {
+      if (mode === "signup") {
+        const loggedIn = await signup(email, password, company || undefined, fullName || undefined);
+        if (loggedIn) router.push("/app/dashboard");
+        else setNotice("Check your email to confirm your account, then log in.");
+      } else {
+        await login(email, password);
+        router.push("/app/dashboard");
+      }
+    });
   };
 
   const magicLink = () => {

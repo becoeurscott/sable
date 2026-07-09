@@ -36,7 +36,8 @@ interface AuthState {
   needsEmailConfirm: boolean;
   usingSupabase: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, company?: string, fullName?: string) => Promise<void>;
+  /** Returns true if a session was created (logged in), false if email confirmation is pending. */
+  signup: (email: string, password: string, company?: string, fullName?: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<void>;
   sendMagicLink: (email: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -178,7 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const signup = useCallback(
-    async (email: string, password: string, company?: string, fullName?: string) => {
+    async (email: string, password: string, company?: string, fullName?: string): Promise<boolean> => {
       if (company && typeof window !== "undefined") window.localStorage.setItem(PENDING_COMPANY, company);
       if (supabase) {
         const { data, error } = await supabase.auth.signUp({
@@ -190,15 +191,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data.session) {
           setTokens(data.session.access_token, data.session.refresh_token ?? "");
           await loadProfileAndOrg(data.session.user.id);
-        } else {
-          setNeedsEmailConfirm(true); // project has email confirmation enabled
+          return true; // logged in (email confirmation is off)
         }
-        return;
+        setNeedsEmailConfirm(true); // project has email confirmation enabled
+        return false;
       }
       const res = await authApi.signup(email, password, fullName);
       setTokens(res.accessToken, res.refreshToken);
       setUser(res.user);
       setOrg(await bootstrapOrg());
+      return true;
     },
     [loadProfileAndOrg],
   );
