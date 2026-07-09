@@ -1,0 +1,83 @@
+### FinanceAI API — sample requests (VS Code REST Client / IntelliJ HTTP)
+### Set @token and @org after signup/login + create org.
+
+@base = http://localhost:4000/api/v1
+@token = PASTE_ACCESS_TOKEN
+@org = PASTE_ORG_ID
+
+### Health
+GET http://localhost:4000/health
+
+### Signup
+POST {{base}}/auth/signup
+Content-Type: application/json
+
+{ "email": "founder@acme.test", "password": "supersecret123", "fullName": "Ada Founder" }
+
+### Login
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{ "email": "founder@acme.test", "password": "supersecret123" }
+
+### Create organization (tenant)
+POST {{base}}/organizations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "name": "Acme Studio", "currency": "USD" }
+
+### Dashboard KPIs
+GET {{base}}/dashboard
+Authorization: Bearer {{token}}
+X-Org-Id: {{org}}
+
+### Create expense (auto-categorized by Gemma/heuristic)
+POST {{base}}/expenses
+Authorization: Bearer {{token}}
+X-Org-Id: {{org}}
+Content-Type: application/json
+
+{ "amount": 52.99, "rawDescription": "ADOBE *CREATIVE CLOUD" }
+
+### List expenses (filter + paginate)
+GET {{base}}/expenses?status=pending&limit=25&page=1
+Authorization: Bearer {{token}}
+X-Org-Id: {{org}}
+
+### Create invoice
+POST {{base}}/invoices
+Authorization: Bearer {{token}}
+X-Org-Id: {{org}}
+Content-Type: application/json
+
+{ "clientName": "Globex Inc", "lineItems": [{ "description": "Redesign", "quantity": 1, "unitPrice": 3500 }], "taxRate": 8.5, "dueDate": "2026-08-01" }
+
+### Download invoice PDF
+GET {{base}}/invoices/INVOICE_ID/pdf
+Authorization: Bearer {{token}}
+X-Org-Id: {{org}}
+
+### AI CFO chat
+POST {{base}}/ai/chat
+Authorization: Bearer {{token}}
+X-Org-Id: {{org}}
+Content-Type: application/json
+
+{ "question": "How healthy is my cash position this year?" }
+
+### Natural-language search
+POST {{base}}/ai/search
+Authorization: Bearer {{token}}
+X-Org-Id: {{org}}
+Content-Type: application/json
+
+{ "query": "show software expenses over 50 this year" }
+
+### Profit & Loss
+GET {{base}}/reports/pl
+Authorization: Bearer {{token}}
+X-Org-Id: {{org}}
+
+### Billing plans (public)
+GET {{base}}/billing/plans

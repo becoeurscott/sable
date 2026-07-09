@@ -1,0 +1,35 @@
+# ── Dependencies ──
+node_modules/
+**/node_modules/
+
+# ── Secrets / environment (NEVER commit real credentials) ──
+.env
+.env.*
+**/.env
+**/.env.*
+# …but keep the templates:
+!.env.example
+!**/.env.example
+
+# ── Build output ──
+dist/
+build/
+out/
+.next/
+**/dist/
+**/.next/
+*.tsbuildinfo
+
+# ── Logs ──
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# ── Test / coverage ──
+coverage/
+
+# ── OS / editor cruft ──
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

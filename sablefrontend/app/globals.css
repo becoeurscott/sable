@@ -1,0 +1,27 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #FFFFFF; }
+body {
+  font-family: var(--font-plex), system-ui, sans-serif;
+  color: #0B1220;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: #2F6BFF; text-decoration: none; }
+a:hover { color: #1B4DE0; }
+::selection { background: #2F6BFF; color: #fff; }
+
+.mono { font-family: var(--font-mono), monospace; }
+
+@keyframes sbFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes sbFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sbGlow { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes sbSpin { to { transform: rotate(360deg); } }
+@keyframes sbBlink { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+@keyframes sbBar { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes sbSweep { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+.sb-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.sb-scroll::-webkit-scrollbar-thumb { background: #C7D0DE; border-radius: 8px; }
+
+/* Reset for elements used with inline styles */
+button { font-family: inherit; }
+input { font-family: inherit; }
