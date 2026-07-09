@@ -30,8 +30,11 @@ const schema = z.object({
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
 
+  // AI provider — Google AI Studio (GEMMA_*) OR OpenRouter. OpenRouter wins if set.
   GEMMA_API_KEY: z.string().optional(),
   GEMMA_MODEL: z.string().default('gemma-3-27b-it'),
+  OPENROUTER_API_KEY: z.string().optional(),
+  OPENROUTER_MODEL: z.string().default('google/gemma-3-27b-it'),
 
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default('FinanceAI <onboarding@resend.dev>'),
@@ -54,7 +57,13 @@ if (!parsed.success) {
 export const env = parsed.data;
 export const isProd = env.NODE_ENV === 'production';
 export const stripeEnabled = Boolean(env.STRIPE_SECRET_KEY);
-export const gemmaEnabled = Boolean(env.GEMMA_API_KEY);
+/** Which AI backend is active (OpenRouter preferred), or null (heuristics only). */
+export const aiProvider: 'openrouter' | 'google' | null = env.OPENROUTER_API_KEY
+  ? 'openrouter'
+  : env.GEMMA_API_KEY
+    ? 'google'
+    : null;
+export const gemmaEnabled = aiProvider !== null;
 export const emailEnabled = Boolean(env.RESEND_API_KEY);
 export const masterKeyEnabled = Boolean(env.ADMIN_API_KEY);
 
