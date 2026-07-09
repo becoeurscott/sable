@@ -90,6 +90,7 @@ const ROUTES: RouteDef[] = [
 
   // Billing
   { method: 'get', path: '/billing/plans', tag: 'Billing', summary: 'List public plans', auth: 'none', rate: '60/min' },
+  { method: 'get', path: '/billing/usage', tag: 'Billing', summary: 'Current-period usage vs quotas (AI credits, OCR, …)', auth: 'member', org: true, rate: '60/min' },
   { method: 'get', path: '/billing/subscription', tag: 'Billing', summary: 'Current subscription', auth: 'admin', org: true, rate: '30/min' },
   { method: 'post', path: '/billing/subscribe', tag: 'Billing', summary: 'Start Stripe checkout', auth: 'owner', org: true, rate: '5/min', body: { planCode: 'starter|growth|professional|enterprise', interval: 'monthly|annual', successUrl: 'string', cancelUrl: 'string' } },
   { method: 'post', path: '/billing/cancel', tag: 'Billing', summary: 'Cancel subscription', auth: 'owner', org: true, rate: '3/min' },

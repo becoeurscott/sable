@@ -448,10 +448,25 @@ export const aiApi = {
     }>("/ai/forecast"),
 };
 
+export interface UsageMetric {
+  used: number;
+  limit: number | null;
+  remaining: number | null;
+  pct: number;
+  nearLimit: boolean;
+}
+export interface UsageSummary {
+  period: string;
+  plan: { code: string; name: string } | null;
+  metrics: Record<string, UsageMetric>;
+  aiCreditCosts: Record<string, number>;
+}
+
 export const billingApi = {
   plans: () => http.get<{ plans: { id: string; code: string; name: string; price_monthly: number; quotas: Record<string, number | null> }[] }>("/billing/plans"),
   subscription: () =>
     http.get<{ subscription: { status: string; plan_id: string | null; current_period_end: string | null } }>(
       "/billing/subscription",
     ),
+  usage: () => http.get<UsageSummary>("/billing/usage"),
 };

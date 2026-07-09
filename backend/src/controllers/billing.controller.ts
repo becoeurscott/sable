@@ -10,6 +10,10 @@ export const current = asyncHandler(async (req: Request, res: Response) => {
   res.json({ subscription: await billing.currentSubscription(req.user!.id, req.org!.id) });
 });
 
+export const usage = asyncHandler(async (req: Request, res: Response) => {
+  res.json(await billing.usageSummary(req.user!.id, req.org!.id));
+});
+
 export const subscribe = asyncHandler(async (req: Request, res: Response) => {
   const out = await billing.subscribe({
     userId: req.user!.id,

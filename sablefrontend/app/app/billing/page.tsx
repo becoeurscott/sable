@@ -3,13 +3,22 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DISPLAY, GRAD } from "../../theme";
-import { usage, receipts } from "../../data";
-import { billingApi } from "../../lib/api";
+import { usage as staticUsage, receipts } from "../../data";
+import { billingApi, type UsageSummary } from "../../lib/api";
+
+const METER_LABELS: Record<string, string> = {
+  ai_credits: "AI credits",
+  ocr: "Receipt OCR",
+  invoices: "Invoices",
+  expenses: "Expenses",
+  storage_mb: "Storage (MB)",
+};
 
 export default function Billing() {
   const router = useRouter();
   const [planName, setPlanName] = useState("Free Trial");
   const [status, setStatus] = useState("Trialing");
+  const [usageData, setUsageData] = useState<UsageSummary | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -19,14 +28,34 @@ export default function Billing() {
           billingApi.plans(),
           billingApi.subscription(),
         ]);
-        if (!active) return;
-        const matched = plans.find((p) => p.id === subscription.plan_id);
-        setPlanName(matched?.name ?? "Free Trial");
-        setStatus(subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1));
+        if (active) {
+          const matched = plans.find((p) => p.id === subscription.plan_id);
+          setPlanName(matched?.name ?? "Free Trial");
+          setStatus(subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1));
+        }
       } catch {/* keep defaults */}
+      try {
+        const u = await billingApi.usage();
+        if (active) setUsageData(u);
+      } catch {/* keep static */}
     })();
     return () => { active = false; };
   }, []);
+
+  // Live usage meters (AI credits first), fall back to placeholders while loading.
+  const usage = usageData
+    ? ["ai_credits", "ocr", "invoices"].map((m) => {
+        const met = usageData.metrics[m];
+        const limit = met?.limit ?? null;
+        return {
+          label: METER_LABELS[m] ?? m,
+          used: `${met?.used ?? 0}${limit != null ? ` / ${limit}` : ""}`,
+          pct: `${met?.pct ?? 0}%`,
+          color: met?.nearLimit ? "#D64545" : "linear-gradient(90deg,#2F6BFF,#6D5EF6)",
+          note: limit == null ? "Unlimited" : `${met?.remaining ?? 0} remaining`,
+        };
+      })
+    : staticUsage;
 
   return (
     <div style={{ maxWidth: 1000, animation: "sbFadeUp .4s ease both" }}>

@@ -14,6 +14,7 @@ billingRoutes.get('/plans', limit(60), ctrl.plans);
 
 // Authenticated + org-scoped billing operations (owner-gated writes).
 billingRoutes.use(requireAuth, requireOrg());
+billingRoutes.get('/usage', limit(60), ctrl.usage);
 billingRoutes.get('/subscription', limit(30), requireRole('admin'), ctrl.current);
 billingRoutes.post('/subscribe', limit(5), requireRole('owner'), validate({ body: subscribeSchema }), ctrl.subscribe);
 billingRoutes.post('/cancel', limit(3), requireRole('owner'), ctrl.cancel);

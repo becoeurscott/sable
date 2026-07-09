@@ -3,6 +3,9 @@ import type Stripe from 'stripe';
 import { stripe, requireStripe } from '../config/stripe.js';
 import { env } from '../config/env.js';
 import { listPublicPlans, getPlanByCode, getPlanById } from '../repositories/plan.repository.js';
+import { getOrganization } from '../repositories/organization.repository.js';
+import { getAllUsage } from '../repositories/usage.repository.js';
+import { AI_CREDIT_COST } from '../ai/credits.js';
 import {
   getSubscription,
   setStripeCustomer,
@@ -14,6 +17,45 @@ import { badRequest, notFound, serviceUnavailable } from '../utils/errors.js';
 
 export async function plans() {
   return listPublicPlans();
+}
+
+/** Current-period usage vs plan quotas (§2). Powers the billing meters and the
+ *  §5 "80% of quota" upsell banner. `limit: null` means unlimited. */
+export async function usageSummary(userId: string, orgId: string) {
+  const org = await getOrganization(userId, orgId);
+  const plan = org?.plan_id ? await getPlanById(org.plan_id) : null;
+  const used = await getAllUsage(orgId);
+  const quotas = (plan?.quotas ?? {}) as Record<string, number | null>;
+
+  const METRICS: Array<[string, string]> = [
+    ['ai_credits', 'ai_credits_mo'],
+    ['ocr', 'ocr_mo'],
+    ['invoices', 'invoices_mo'],
+    ['expenses', 'expenses_mo'],
+    ['storage_mb', 'storage_mb'],
+  ];
+
+  const metrics: Record<string, { used: number; limit: number | null; remaining: number | null; pct: number; nearLimit: boolean }> = {};
+  for (const [metric, quotaKey] of METRICS) {
+    const limit = quotas[quotaKey] ?? null;
+    const u = used[metric] ?? 0;
+    const pct = limit ? Math.min(100, Math.round((u / limit) * 100)) : 0;
+    metrics[metric] = {
+      used: u,
+      limit,
+      remaining: limit == null ? null : Math.max(0, limit - u),
+      pct,
+      nearLimit: limit != null && pct >= 80,
+    };
+  }
+
+  const now = new Date();
+  return {
+    period: `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`,
+    plan: plan ? { code: plan.code, name: plan.name } : null,
+    metrics,
+    aiCreditCosts: AI_CREDIT_COST, // what each AI operation costs
+  };
 }
 
 export async function currentSubscription(userId: string, orgId: string) {

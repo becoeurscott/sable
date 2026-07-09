@@ -19,24 +19,28 @@ import { parseNlQuery } from '../ai/nlSearch.js';
 import { answerCfoQuestion } from '../ai/cfoChat.js';
 import { computeHealthScore } from '../ai/healthScore.js';
 import { isGemmaAvailable } from '../ai/gemma.js';
+import { AI_CREDIT_COST } from '../ai/credits.js';
 import { notFound } from '../utils/errors.js';
 
 const ytd = () => ({ from: dayjs().startOf('year').format('YYYY-MM-DD'), to: dayjs().format('YYYY-MM-DD') });
 
 export async function categorize(userId: string, orgId: string, rawDescription: string) {
-  await assertWithinQuota(userId, orgId, 'ai_credits');
+  const cost = AI_CREDIT_COST.categorize;
+  if (isGemmaAvailable()) await assertWithinQuota(userId, orgId, 'ai_credits', cost);
   const org = await getOrganization(userId, orgId);
   const cats = (org?.chart_of_accounts as string[] | undefined) ?? [];
   const result = await categorizeTransaction(rawDescription, cats);
-  if (result.source === 'gemma') await incrementUsage(orgId, 'ai_credits', 1);
+  if (result.source === 'gemma') await incrementUsage(orgId, 'ai_credits', cost);
   return result;
 }
 
 /** Structure raw receipt OCR text into expense fields (§4 Feature C). */
 export async function parseReceipt(userId: string, orgId: string, rawText: string) {
-  await assertWithinQuota(userId, orgId, 'ocr');
+  const cost = AI_CREDIT_COST.parse_receipt;
+  await assertWithinQuota(userId, orgId, 'ocr'); // OCR is its own metered quota (§2)
+  if (isGemmaAvailable()) await assertWithinQuota(userId, orgId, 'ai_credits', cost);
   const result = await parseReceiptText(rawText);
-  if (result.source === 'gemma') await incrementUsage(orgId, 'ai_credits', 1);
+  if (result.source === 'gemma') await incrementUsage(orgId, 'ai_credits', cost);
   await incrementUsage(orgId, 'ocr', 1);
   return result;
 }
@@ -47,7 +51,8 @@ export async function chat(input: {
   question: string;
   conversationId?: string;
 }) {
-  await assertWithinQuota(input.userId, input.orgId, 'ai_credits');
+  const cost = AI_CREDIT_COST.chat;
+  if (isGemmaAvailable()) await assertWithinQuota(input.userId, input.orgId, 'ai_credits', cost);
   const org = await getOrganization(input.userId, input.orgId);
   const range = ytd();
   const kpis = await dashboardKpis(input.userId, input.orgId, range.from, range.to);
@@ -67,7 +72,7 @@ export async function chat(input: {
   });
 
   await addMessage(input.userId, input.orgId, conversation.id, 'assistant', answer);
-  if (isGemmaAvailable()) await incrementUsage(input.orgId, 'ai_credits', 1);
+  if (isGemmaAvailable()) await incrementUsage(input.orgId, 'ai_credits', cost);
 
   return { conversationId: conversation.id, answer };
 }
@@ -84,9 +89,10 @@ export async function messages(userId: string, conversationId: string) {
 
 /** NL search → structured filter → parameterized query (§4 Feature B). */
 export async function nlSearch(userId: string, orgId: string, query: string) {
-  await assertWithinQuota(userId, orgId, 'ai_credits');
+  const cost = AI_CREDIT_COST.nl_search;
+  if (isGemmaAvailable()) await assertWithinQuota(userId, orgId, 'ai_credits', cost);
   const parsed = await parseNlQuery(query);
-  if (isGemmaAvailable()) await incrementUsage(orgId, 'ai_credits', 1);
+  if (isGemmaAvailable()) await incrementUsage(orgId, 'ai_credits', cost);
 
   const f = parsed.filters;
   const limit = parsed.limit;
@@ -129,9 +135,13 @@ export async function nlSearch(userId: string, orgId: string, query: string) {
 }
 
 export async function healthScore(userId: string, orgId: string) {
+  const cost = AI_CREDIT_COST.health_score;
+  if (isGemmaAvailable()) await assertWithinQuota(userId, orgId, 'ai_credits', cost);
   const range = ytd();
   const kpis = await dashboardKpis(userId, orgId, range.from, range.to);
-  return computeHealthScore(kpis);
+  const result = await computeHealthScore(kpis);
+  if (isGemmaAvailable()) await incrementUsage(orgId, 'ai_credits', cost);
+  return result;
 }
 
 /** 90-day cash forecast: linear trend over recent net cashflow (statistical). */
