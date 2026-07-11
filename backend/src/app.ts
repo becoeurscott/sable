@@ -42,11 +42,20 @@ export function createApp(): Express {
     }),
   );
 
+  // Allow the configured origins, plus any *.vercel.app deployment (so preview /
+  // production URLs work without updating CORS_ORIGINS on every deploy).
+  const allowed = new Set(env.CORS_ORIGINS);
   app.use(
     cors({
-      origin: env.CORS_ORIGINS,
+      origin(origin, cb) {
+        if (!origin) return cb(null, true); // non-browser clients (curl, server-to-server)
+        if (allowed.has(origin) || /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)) {
+          return cb(null, true);
+        }
+        return cb(null, false);
+      },
       credentials: true,
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Org-Id'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Org-Id', 'X-API-Key'],
     }),
   );
 
