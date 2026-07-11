@@ -7,7 +7,7 @@ services:
     plan: free
     region: oregon            # us-west, closest to your Supabase (aws-1-us-west-2)
     rootDir: backend          # the service lives in /backend
-    branch: main
+    branch: app               # our full-stack branch (main holds a separate build)
     buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /health
