@@ -1,0 +1,43 @@
+# Render Blueprint — deploys the FinanceAI/Sable backend.
+# Render → New → Blueprint → connect this repo → set the `sync: false` secrets.
+services:
+  - type: web
+    name: sable-backend
+    runtime: node
+    plan: free
+    region: oregon            # us-west, closest to your Supabase (aws-1-us-west-2)
+    rootDir: backend          # the service lives in /backend
+    branch: main
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # ── non-secret config (committed) ──
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "20"
+      - key: DB_RLS_ROLE
+        value: authenticated
+      - key: DATABASE_SSL
+        value: "on"
+      - key: AUTH_MODE
+        value: supabase
+      - key: SUPABASE_URL
+        value: https://nzdmcksdgqhnmhthfsdn.supabase.co
+      - key: OPENROUTER_MODEL
+        value: google/gemma-3-27b-it
+      # Render generates a random value (not used for verification in supabase mode,
+      # but env validation requires it).
+      - key: JWT_SECRET
+        generateValue: true
+      # ── secrets: set these in the Render dashboard (never committed) ──
+      - key: DATABASE_URL         # Supabase pooler URI (password percent-encoded)
+        sync: false
+      - key: CORS_ORIGINS         # your deployed frontend origin, e.g. https://sable.vercel.app
+        sync: false
+      - key: OPENROUTER_API_KEY   # sk-or-v1-…
+        sync: false
+      - key: ADMIN_API_KEY        # your master dev key (optional)
+        sync: false
