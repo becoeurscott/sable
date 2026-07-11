@@ -16,7 +16,7 @@ export default function Pricing() {
       <div style={{ position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: -160, left: "50%", transform: "translateX(-50%)", width: 800, height: 420, background: "radial-gradient(ellipse at center, rgba(47,107,255,.12), transparent 70%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 1160, margin: "0 auto", padding: "66px 28px 30px", textAlign: "center", position: "relative" }}>
-          <h1 style={{ fontFamily: DISPLAY, fontSize: 48, lineHeight: 1.05, letterSpacing: "-.03em", fontWeight: 700, margin: "0 0 14px" }}>Simple pricing that scales with you</h1>
+          <h1 style={{ fontFamily: DISPLAY, fontSize: "clamp(32px, 7vw, 48px)", lineHeight: 1.05, letterSpacing: "-.03em", fontWeight: 700, margin: "0 0 14px" }}>Simple pricing that scales with you</h1>
           <p style={{ fontSize: 18, color: "#4A5566", margin: "0 0 28px" }}>Start free. Upgrade when your AI CFO starts paying for itself.</p>
           <div style={{ display: "inline-flex", background: "#F0F3F9", border: "1px solid #E4E9F2", borderRadius: 12, padding: 4, gap: 4 }}>
             <button
@@ -36,7 +36,7 @@ export default function Pricing() {
       </div>
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 28px 40px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 14, alignItems: "stretch" }}>
+        <div className="sb-plans-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 14, alignItems: "stretch" }}>
           {plans.map((p) => (
             <div key={p.name} style={{ background: p.cardBg, border: p.border, borderRadius: 18, padding: "24px 20px", display: "flex", flexDirection: "column", position: "relative", boxShadow: p.shadow }}>
               {p.popular && (
@@ -74,7 +74,7 @@ export default function Pricing() {
       <div style={{ maxWidth: 1080, margin: "0 auto", padding: "40px 28px 20px" }}>
         <h3 style={{ fontFamily: DISPLAY, fontSize: 24, letterSpacing: "-.02em", fontWeight: 700, margin: "0 0 6px" }}>Premium add-ons</h3>
         <p style={{ fontSize: 15, color: "#5A6472", margin: "0 0 22px" }}>Bolt on exactly what your business needs.</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+        <div className="sb-grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
           {addons.map((a) => (
             <div key={a.name} style={{ border: "1px solid #EBEFF6", background: "#F7F9FC", borderRadius: 14, padding: "18px 20px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>

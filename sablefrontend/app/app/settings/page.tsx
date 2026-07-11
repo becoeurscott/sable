@@ -114,7 +114,7 @@ export default function Settings() {
       {/* Organization */}
       <div style={card}>
         <div style={{ fontFamily: DISPLAY, fontWeight: 600, fontSize: 16, marginBottom: 16 }}>Organization</div>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12, marginBottom: 14 }}>
+        <div className="sb-form-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12, marginBottom: 14 }}>
           <div>
             <label style={label}>Company name</label>
             <input value={name} onChange={(e) => setName(e.target.value)} style={input} />
@@ -145,7 +145,7 @@ export default function Settings() {
           </div>
         ))}
 
-        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr auto", gap: 10, marginTop: 16, alignItems: "end" }}>
+        <div className="sb-form-grid" style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr auto", gap: 10, marginTop: 16, alignItems: "end" }}>
           <div>
             <label style={label}>Invite by email</label>
             <input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="teammate@company.com" style={input} />
@@ -190,7 +190,7 @@ export default function Settings() {
         ))}
         {keys.filter((k) => !k.revokedAt).length === 0 && <div style={{ fontSize: 13, color: "#8A93A3", padding: "4px 0 12px" }}>No active keys.</div>}
 
-        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr auto auto", gap: 10, marginTop: 14, alignItems: "end" }}>
+        <div className="sb-form-grid" style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr auto auto", gap: 10, marginTop: 14, alignItems: "end" }}>
           <div>
             <label style={label}>New key name</label>
             <input value={keyName} onChange={(e) => setKeyName(e.target.value)} placeholder="e.g. Zapier integration" style={input} />
@@ -209,7 +209,7 @@ export default function Settings() {
       </div>
 
       {/* Integrations + Security (roadmap-gated) */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="sb-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={{ ...card, marginBottom: 0 }}>
           <div style={{ fontFamily: DISPLAY, fontWeight: 600, fontSize: 15, marginBottom: 12 }}>Integrations</div>
           {[["Stripe billing", "Connected"], ["Plaid bank sync", "Coming soon"], ["Resend email", "Coming soon"]].map(([n, s]) => (

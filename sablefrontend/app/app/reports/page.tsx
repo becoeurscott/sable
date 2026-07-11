@@ -65,9 +65,9 @@ export default function Reports() {
             <div style={{ fontSize: 12, color: "#8A93A3" }}>trend: {forecast?.trend ?? "…"}</div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+        <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
           {(forecast?.projection ?? []).map((p) => (
-            <div key={p.month} style={{ flex: 1, background: "#F7F9FC", border: "1px solid #EEF1F7", borderRadius: 12, padding: "12px 14px" }}>
+            <div key={p.month} style={{ flex: "1 1 130px", background: "#F7F9FC", border: "1px solid #EEF1F7", borderRadius: 12, padding: "12px 14px" }}>
               <div style={{ fontSize: 12, color: "#8A93A3" }}>{p.month}</div>
               <div className="mono" style={{ fontSize: 16, fontWeight: 700, color: p.projectedNet >= 0 ? "#0E9F6E" : "#D64545", marginTop: 4 }}>{money(p.projectedNet)}</div>
             </div>

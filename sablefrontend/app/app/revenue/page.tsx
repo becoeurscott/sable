@@ -61,7 +61,7 @@ export default function Revenue() {
 
   return (
     <div style={{ maxWidth: 1000, animation: "sbFadeUp .4s ease both" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16, marginBottom: 16 }}>
+      <div className="sb-split" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16, marginBottom: 16 }}>
         {/* total */}
         <div style={{ background: "linear-gradient(135deg,#0F1830,#0A1020)", borderRadius: 16, padding: 24, color: "#E8EDF6", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -30, right: -20, width: 150, height: 150, background: "radial-gradient(circle, rgba(14,159,110,.3), transparent 70%)" }} />
@@ -97,7 +97,7 @@ export default function Revenue() {
 
         {showForm && (
           <div style={{ padding: "20px 22px", background: "#F7F9FC", borderBottom: "1px solid #EEF1F7", animation: "sbFadeUp .3s ease both" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1.4fr", gap: 12, marginBottom: 14 }}>
+            <div className="sb-form-grid" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1.4fr", gap: 12, marginBottom: 14 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "#5A6472", display: "block", marginBottom: 6 }}>Source</label>
                 <input value={source} onChange={(e) => setSource(e.target.value)} placeholder="e.g. Client retainer" style={inputStyle} />

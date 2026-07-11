@@ -66,7 +66,7 @@ export default function Dashboard() {
 
   return (
     <div style={{ maxWidth: 1080, animation: "sbFadeUp .4s ease both" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 16 }}>
+      <div className="sb-grid-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 16 }}>
         {kpis.map((k) => (
           <div key={k.label} style={{ background: "#fff", border: "1px solid #EAEEF5", borderRadius: 16, padding: "18px 20px" }}>
             <div style={{ fontSize: 12.5, color: "#8A93A3", fontWeight: 600, marginBottom: 10 }}>{k.label}</div>
@@ -76,7 +76,7 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.55fr 1fr", gap: 16, marginBottom: 16 }}>
+      <div className="sb-split" style={{ display: "grid", gridTemplateColumns: "1.55fr 1fr", gap: 16, marginBottom: 16 }}>
         {/* chart */}
         <div style={{ background: "#fff", border: "1px solid #EAEEF5", borderRadius: 16, padding: 22 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
@@ -129,7 +129,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="sb-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={{ background: "#fff", border: "1px solid #EAEEF5", borderRadius: 16, padding: 20 }}>
           <div style={{ fontFamily: DISPLAY, fontWeight: 600, fontSize: 15, marginBottom: 14 }}>Recent transactions</div>
           {recentTx.map((t) => (

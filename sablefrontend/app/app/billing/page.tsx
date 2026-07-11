@@ -59,7 +59,7 @@ export default function Billing() {
 
   return (
     <div style={{ maxWidth: 1000, animation: "sbFadeUp .4s ease both" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16, marginBottom: 16 }}>
+      <div className="sb-split" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16, marginBottom: 16 }}>
         {/* current plan */}
         <div style={{ background: "linear-gradient(135deg,#0F1830,#0A1020)", borderRadius: 16, padding: 24, color: "#E8EDF6", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -30, right: -20, width: 150, height: 150, background: "radial-gradient(circle, rgba(109,94,246,.35), transparent 70%)" }} />
@@ -100,7 +100,7 @@ export default function Billing() {
       {/* usage */}
       <div style={{ background: "#fff", border: "1px solid #EAEEF5", borderRadius: 16, padding: 22, marginBottom: 16 }}>
         <div style={{ fontFamily: DISPLAY, fontWeight: 600, fontSize: 15, marginBottom: 18 }}>Usage this cycle</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 22 }}>
+        <div className="sb-grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 22 }}>
           {usage.map((u) => (
             <div key={u.label}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 7 }}>
@@ -116,7 +116,7 @@ export default function Billing() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 16 }}>
+      <div className="sb-split" style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 16 }}>
         {/* referral */}
         <div style={{ background: "linear-gradient(135deg,#F0F4FF,#F3F0FF)", border: "1px solid #E1E8FF", borderRadius: 16, padding: 22 }}>
           <div style={{ fontFamily: DISPLAY, fontWeight: 600, fontSize: 15, marginBottom: 6 }}>Earn free months 🎁</div>

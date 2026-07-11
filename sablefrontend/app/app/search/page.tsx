@@ -96,20 +96,22 @@ export default function Search() {
           </div>
           {result.results.length === 0 && <div style={{ padding: "20px 22px", fontSize: 13.5, color: "#8A93A3" }}>No matching records.</div>}
           {result.results.length > 0 && (
-            <>
-              <div style={{ display: "grid", gridTemplateColumns: grid, padding: "12px 22px", fontSize: 12, color: "#8A93A3", fontWeight: 600, background: "#FBFCFE", borderBottom: "1px solid #EEF1F7" }}>
-                {cols.map((c) => <div key={c.key} style={{ textAlign: c.align }}>{c.label}</div>)}
-              </div>
-              {result.results.map((r, i) => (
-                <div key={i} style={{ display: "grid", gridTemplateColumns: grid, padding: "13px 22px", borderBottom: "1px solid #F1F4F9", fontSize: 13.5 }}>
-                  {cols.map((c) => (
-                    <div key={c.key} className={c.align === "right" ? "mono" : undefined} style={{ textAlign: c.align, fontWeight: c.align === "right" ? 600 : 400 }}>
-                      {c.render ? c.render(r) : String(r[c.key] ?? "—")}
-                    </div>
-                  ))}
+            <div className="sb-scroll-x sb-scroll">
+              <div style={{ minWidth: 520 }}>
+                <div style={{ display: "grid", gridTemplateColumns: grid, padding: "12px 22px", fontSize: 12, color: "#8A93A3", fontWeight: 600, background: "#FBFCFE", borderBottom: "1px solid #EEF1F7" }}>
+                  {cols.map((c) => <div key={c.key} style={{ textAlign: c.align }}>{c.label}</div>)}
                 </div>
-              ))}
-            </>
+                {result.results.map((r, i) => (
+                  <div key={i} style={{ display: "grid", gridTemplateColumns: grid, padding: "13px 22px", borderBottom: "1px solid #F1F4F9", fontSize: 13.5 }}>
+                    {cols.map((c) => (
+                      <div key={c.key} className={c.align === "right" ? "mono" : undefined} style={{ textAlign: c.align, fontWeight: c.align === "right" ? 600 : 400 }}>
+                        {c.render ? c.render(r) : String(r[c.key] ?? "—")}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       )}

@@ -118,7 +118,7 @@ export default function Expenses() {
 
   return (
     <div style={{ maxWidth: 1000, animation: "sbFadeUp .4s ease both" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16, marginBottom: 16 }}>
+      <div className="sb-split" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16, marginBottom: 16 }}>
         {/* OCR uploader */}
         <div style={{ background: "linear-gradient(165deg,#0F1830,#0A1020)", borderRadius: 16, padding: 22, color: "#E8EDF6", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -40, right: -30, width: 150, height: 150, background: "radial-gradient(circle, rgba(47,107,255,.35), transparent 70%)" }} />
@@ -191,8 +191,8 @@ export default function Expenses() {
         {/* toolbar: filters + add */}
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", padding: "16px 22px", borderBottom: "1px solid #EEF1F7" }}>
           <div style={{ fontFamily: DISPLAY, fontWeight: 600, fontSize: 16, marginRight: "auto" }}>Recent expenses</div>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="🔍 Search vendor…" style={{ ...inputStyle, width: 200 }} />
-          <select value={cat} onChange={(e) => setCat(e.target.value)} style={{ ...inputStyle, width: 170 }}>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="🔍 Search vendor…" className="sb-tool-input" style={{ ...inputStyle, width: 200 }} />
+          <select value={cat} onChange={(e) => setCat(e.target.value)} className="sb-tool-input" style={{ ...inputStyle, width: 170 }}>
             <option value="">All categories</option>
             {categories.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
@@ -201,7 +201,7 @@ export default function Expenses() {
 
         {showAdd && (
           <div style={{ padding: "18px 22px", background: "#F7F9FC", borderBottom: "1px solid #EEF1F7", animation: "sbFadeUp .3s ease both" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr 1.2fr auto", gap: 12, alignItems: "end" }}>
+            <div className="sb-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr 1.2fr auto", gap: 12, alignItems: "end" }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "#5A6472", display: "block", marginBottom: 6 }}>Amount ($)</label>
                 <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" style={inputStyle} />
@@ -220,24 +220,28 @@ export default function Expenses() {
           </div>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr .8fr", padding: "12px 22px", fontSize: 12, color: "#8A93A3", fontWeight: 600, borderBottom: "1px solid #EEF1F7", background: "#FBFCFE" }}>
-          <div>Raw description → clean</div>
-          <div>Category</div>
-          <div>Date</div>
-          <div style={{ textAlign: "right" }}>Amount</div>
-        </div>
-        {filtered.length === 0 && <div style={{ padding: "20px 22px", fontSize: 13.5, color: "#8A93A3" }}>No expenses match. Add one above or snap a receipt.</div>}
-        {filtered.map((e) => (
-          <div key={e.backendId} style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr .8fr", alignItems: "center", padding: "13px 22px", borderBottom: "1px solid #F1F4F9" }}>
-            <div>
-              <div className="mono" style={{ fontSize: 11.5, color: "#A6AFBE", textDecoration: "line-through" }}>{e.raw}</div>
-              <div style={{ fontSize: 14, fontWeight: 500, marginTop: 2 }}>{e.vendor}</div>
+        <div className="sb-scroll-x sb-scroll">
+          <div style={{ minWidth: 620 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr .8fr", padding: "12px 22px", fontSize: 12, color: "#8A93A3", fontWeight: 600, borderBottom: "1px solid #EEF1F7", background: "#FBFCFE" }}>
+              <div>Raw description → clean</div>
+              <div>Category</div>
+              <div>Date</div>
+              <div style={{ textAlign: "right" }}>Amount</div>
             </div>
-            <div><span style={{ fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 100, background: "#EEF3FF", color: "#2F6BFF" }}>{e.cat}</span></div>
-            <div style={{ fontSize: 13.5, color: "#5A6472" }}>{e.date}</div>
-            <div className="mono" style={{ fontSize: 14, fontWeight: 600, textAlign: "right" }}>−${e.amount.toFixed(2)}</div>
+            {filtered.length === 0 && <div style={{ padding: "20px 22px", fontSize: 13.5, color: "#8A93A3" }}>No expenses match. Add one above or snap a receipt.</div>}
+            {filtered.map((e) => (
+              <div key={e.backendId} style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr .8fr", alignItems: "center", padding: "13px 22px", borderBottom: "1px solid #F1F4F9" }}>
+                <div>
+                  <div className="mono" style={{ fontSize: 11.5, color: "#A6AFBE", textDecoration: "line-through" }}>{e.raw}</div>
+                  <div style={{ fontSize: 14, fontWeight: 500, marginTop: 2 }}>{e.vendor}</div>
+                </div>
+                <div><span style={{ fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 100, background: "#EEF3FF", color: "#2F6BFF" }}>{e.cat}</span></div>
+                <div style={{ fontSize: 13.5, color: "#5A6472" }}>{e.date}</div>
+                <div className="mono" style={{ fontSize: 14, fontWeight: 600, textAlign: "right" }}>−${e.amount.toFixed(2)}</div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );

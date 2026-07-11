@@ -25,3 +25,72 @@ a:hover { color: #1B4DE0; }
 /* Reset for elements used with inline styles */
 button { font-family: inherit; }
 input { font-family: inherit; }
+
+/* ---------------------------------------------------------------- */
+/* Responsive utilities. Components keep their desktop layout inline; */
+/* these classes take over at smaller widths (!important beats inline). */
+/* ---------------------------------------------------------------- */
+
+/* Horizontal scroll wrapper for grid "tables" */
+.sb-scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* Mobile-only / desktop-only toggles */
+.sb-burger { display: none; }
+.sb-mobile-menu { display: none; }
+
+@media (max-width: 1120px) {
+  .sb-plans-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@media (max-width: 960px) {
+  .sb-hero-grid { grid-template-columns: 1fr !important; gap: 44px !important; padding-top: 48px !important; }
+  .sb-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .sb-grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+  .sb-split { grid-template-columns: 1fr !important; }
+
+  /* App shell: sidebar becomes an off-canvas drawer */
+  .sb-sidebar {
+    position: fixed !important;
+    left: 0; top: 0; bottom: 0;
+    z-index: 70;
+    transform: translateX(-105%);
+    transition: transform .25s ease;
+    box-shadow: 0 0 60px rgba(8,12,22,.45);
+    overflow-y: auto;
+  }
+  .sb-sidebar.sb-open { transform: none; }
+  .sb-burger { display: inline-flex; align-items: center; justify-content: center; }
+  .sb-backdrop { position: fixed; inset: 0; background: rgba(8,12,22,.55); z-index: 60; }
+  .sb-topbar { padding: 0 16px !important; gap: 10px; }
+  .sb-main-pad { padding: 18px 16px 48px !important; }
+}
+
+@media (max-width: 760px) {
+  .sb-grid-3, .sb-grid-2 { grid-template-columns: 1fr !important; }
+  .sb-form-grid { grid-template-columns: 1fr !important; }
+  .sb-form-grid > button { height: auto !important; }
+  .sb-tool-input { width: 100% !important; flex: 1 1 100% !important; }
+
+  /* Marketing nav: collapse links into hamburger menu */
+  .sb-nav-links { display: none !important; }
+  .sb-nav-signin { display: none !important; }
+  .sb-mobile-menu { display: flex; flex-direction: column; }
+
+  /* Topbar: drop the search field (search lives in the sidebar too) */
+  .sb-topbar-search { display: none !important; }
+  .sb-topbar-sub { display: none !important; }
+
+  /* Landing hero floating chip: keep it inside the viewport */
+  .sb-kpi-chip { left: 10px !important; bottom: -18px !important; }
+
+  /* Section padding tightens up */
+  .sb-section { padding-left: 20px !important; padding-right: 20px !important; }
+}
+
+@media (max-width: 640px) {
+  .sb-plans-grid { grid-template-columns: 1fr !important; }
+  .sb-grid-4 { gap: 10px !important; }
+  .sb-email-row { flex-wrap: wrap; }
+  .sb-email-row > input { min-width: 220px; }
+  .sb-email-row > button { flex: 1 1 auto; }
+}
