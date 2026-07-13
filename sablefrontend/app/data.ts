@@ -37,6 +37,7 @@ export const stats: Stat[] = [
 
 // ---- Pricing ----
 export type Plan = {
+  code: string;
   name: string;
   tagline: string;
   price: string;
@@ -70,18 +71,18 @@ export function buildPlans(annual: boolean): Plan[] {
     shadow: "none",
   };
   return [
-    { ...grey, name: "Free Trial", tagline: "Kick the tires, no card.", price: "$0", per: "", billed: "14-day full access", cta: "Start free", btnBg: "#F0F3F9", btnColor: "#0B1220", btnBorder: "1px solid #E4E9F2", popular: false,
+    { ...grey, code: "free_trial", name: "Free Trial", tagline: "Kick the tires, no card.", price: "$0", per: "", billed: "14-day full access", cta: "Start free", btnBg: "#F0F3F9", btnColor: "#0B1220", btnBorder: "1px solid #E4E9F2", popular: false,
       feats: ["1 user", "5 invoices/mo", "20 expenses/mo", "50 AI credits", "Basic reports"] },
-    { ...grey, name: "Starter", tagline: "For freelancers & solo founders.", price: annual ? "$15" : "$19", per: "/mo", billed: annual ? "billed annually" : "billed monthly", cta: "Choose Starter", btnBg: "#F0F3F9", btnColor: "#0B1220", btnBorder: "1px solid #E4E9F2", popular: false,
+    { ...grey, code: "starter", name: "Starter", tagline: "For freelancers & solo founders.", price: annual ? "$15" : "$19", per: "/mo", billed: annual ? "billed annually" : "billed monthly", cta: "Choose Starter", btnBg: "#F0F3F9", btnColor: "#0B1220", btnBorder: "1px solid #E4E9F2", popular: false,
       feats: ["1 user", "50 invoices/mo", "500 AI credits", "Receipt OCR (50/mo)", "Email support"] },
-    { name: "Growth", tagline: "For small teams scaling up.", price: annual ? "$39" : "$49", per: "/mo", billed: annual ? "billed annually" : "billed monthly", cta: "Choose Growth", popular: true,
+    { code: "growth", name: "Growth", tagline: "For small teams scaling up.", price: annual ? "$39" : "$49", per: "/mo", billed: annual ? "billed annually" : "billed monthly", cta: "Choose Growth", popular: true,
       nameColor: "#fff", subColor: "#9AA6BC", priceColor: "#fff", featColor: "#C9D3E6", checkColor: "#6D9CFF",
       cardBg: "linear-gradient(165deg,#0F1830,#0A1020)", border: "1px solid #2A3A5E", shadow: "0 24px 50px -18px rgba(11,16,32,.5)",
       btnBg: "linear-gradient(135deg,#2F6BFF,#6D5EF6)", btnColor: "#fff", btnBorder: "none",
       feats: ["3 users", "Unlimited invoices", "2,000 AI credits", "Advanced AI CFO chat", "3-month cash forecast", "Full API access"] },
-    { ...grey, name: "Professional", tagline: "For growing businesses.", price: annual ? "$79" : "$99", per: "/mo", billed: annual ? "billed annually" : "billed monthly", cta: "Choose Pro", btnBg: "#F0F3F9", btnColor: "#0B1220", btnBorder: "1px solid #E4E9F2", popular: false,
+    { ...grey, code: "professional", name: "Professional", tagline: "For growing businesses.", price: annual ? "$79" : "$99", per: "/mo", billed: annual ? "billed annually" : "billed monthly", cta: "Choose Pro", btnBg: "#F0F3F9", btnColor: "#0B1220", btnBorder: "1px solid #E4E9F2", popular: false,
       feats: ["10 users", "Unlimited OCR", "10,000 AI credits", "12-month AI forecast", "Fraud detection", "Approvals + phone support"] },
-    { ...grey, name: "Enterprise", tagline: "For accountants & 50+ staff.", price: "Custom", per: "", billed: "annual contract", cta: "Talk to sales", btnBg: "#0B1220", btnColor: "#fff", btnBorder: "none", popular: false,
+    { ...grey, code: "enterprise", name: "Enterprise", tagline: "For accountants & 50+ staff.", price: "Custom", per: "", billed: "annual contract", cta: "Talk to sales", btnBg: "#0B1220", btnColor: "#fff", btnBorder: "none", popular: false,
       feats: ["Unlimited seats", "White-label mode", "SSO + dedicated CSM", "Custom ML fraud", "Dedicated AI training"] },
   ];
 }

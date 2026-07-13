@@ -1,15 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DISPLAY, GRAD } from "../../theme";
 import { buildPlans, addons, faqs } from "../../data";
 import { useOnboarding } from "../onboarding-context";
 import { Footer } from "../Footer";
+import { billingApi } from "../../lib/api";
+
+type LivePrice = { monthly: number; annual: number | null };
 
 export default function Pricing() {
   const { openOnboard } = useOnboarding();
   const [annual, setAnnual] = useState(true);
-  const plans = buildPlans(annual);
+
+  // Live prices from the DB (admin-editable). Falls back to the static prices
+  // in data.ts if the API is unreachable, so the page never breaks.
+  const [live, setLive] = useState<Record<string, LivePrice>>({});
+  useEffect(() => {
+    billingApi
+      .plans()
+      .then((r) => {
+        const map: Record<string, LivePrice> = {};
+        for (const p of r.plans) map[p.code] = { monthly: p.price_monthly, annual: p.price_annual };
+        setLive(map);
+      })
+      .catch(() => {/* keep the static fallback prices */});
+  }, []);
+
+  const hasLive = Object.keys(live).length > 0;
+  const plans = buildPlans(annual)
+    // Once live data is loaded, only show plans the API returned (i.e. public ones).
+    .filter((p) => !hasLive || live[p.code])
+    .map((p) => {
+      const lp = live[p.code];
+      if (!lp || p.price === "Custom") return p; // keep "Custom" / no live data
+      const cents = annual ? lp.annual ?? lp.monthly : lp.monthly;
+      if (cents == null) return p;
+      return { ...p, price: cents <= 0 ? "$0" : "$" + Math.round(cents / 100).toLocaleString() };
+    });
 
   return (
     <div style={{ animation: "sbFade .4s ease both" }}>

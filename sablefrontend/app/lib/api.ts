@@ -538,8 +538,18 @@ export const adminApi = {
   system: () => http.get<AdminSystem>("/admin/system"),
 };
 
+export interface PublicPlan {
+  id: string;
+  code: string;
+  name: string;
+  price_monthly: number;
+  price_annual: number | null;
+  quotas: Record<string, number | null>;
+  is_public: boolean;
+}
+
 export const billingApi = {
-  plans: () => http.get<{ plans: { id: string; code: string; name: string; price_monthly: number; quotas: Record<string, number | null> }[] }>("/billing/plans"),
+  plans: () => http.get<{ plans: PublicPlan[] }>("/billing/plans"),
   subscription: () =>
     http.get<{ subscription: { status: string; plan_id: string | null; current_period_end: string | null } }>(
       "/billing/subscription",

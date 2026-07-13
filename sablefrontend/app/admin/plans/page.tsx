@@ -113,8 +113,10 @@ export default function AdminPlans() {
   return (
     <div style={{ maxWidth: 1080, animation: "sbFadeUp .4s ease both" }}>
       <div style={{ fontSize: 13, color: "#8A93A3", marginBottom: 16 }}>
-        Prices are stored in cents and shown in dollars. Changes apply to the pricing page and quota
-        enforcement immediately — existing Stripe subscriptions keep their Stripe price until changed there.
+        Prices are entered in dollars and stored in cents. Changes take effect immediately across the
+        public pricing page, the in-app billing screen, and quota enforcement. Any plan you un-tick from
+        &ldquo;public&rdquo; is hidden from the marketing pricing page. Existing Stripe subscriptions keep
+        their Stripe price until changed in Stripe.
       </div>
       <div className="sb-grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
         {plans.map((p) => <PlanCard key={p.id} plan={p} onSaved={load} />)}
