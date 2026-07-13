@@ -9,6 +9,7 @@ import { reportRoutes } from './reports.routes.js';
 import { aiRoutes } from './ai.routes.js';
 import { billingRoutes } from './billing.routes.js';
 import { notificationRoutes } from './notifications.routes.js';
+import { adminRoutes } from './admin.routes.js';
 
 /** Mounts the full REST surface from §10 under /api/v1. */
 export const apiRouter = Router();
@@ -23,3 +24,4 @@ apiRouter.use('/reports', reportRoutes);
 apiRouter.use('/ai', aiRoutes);
 apiRouter.use('/billing', billingRoutes);
 apiRouter.use('/notifications', notificationRoutes);
+apiRouter.use('/admin', adminRoutes);

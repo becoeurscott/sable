@@ -7,6 +7,18 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "sable-frontend-localapi",
+      "cwd": "sablefrontend",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "dev", "-p", "3005"],
+      "port": 3005,
+      "env": {
+        "NEXT_PUBLIC_API_URL": "http://localhost:4001/api/v1",
+        "NEXT_PUBLIC_SUPABASE_URL": "",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY": ""
+      }
     }
   ]
 }

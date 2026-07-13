@@ -462,6 +462,82 @@ export interface UsageSummary {
   aiCreditCosts: Record<string, number>;
 }
 
+// ── Platform admin (cross-tenant SaaS management, /admin) ────────────────────
+export interface AdminOverview {
+  counts: {
+    users: string; users_30d: string; orgs: string;
+    subs_active: string; subs_trialing: string; subs_past_due: string; subs_canceled: string;
+    invoices: string; expenses: string; revenues: string; api_keys_active: string;
+    mrr_cents: string; ai_credits_month: string;
+  };
+  signups: { month: string; users: string; orgs: string }[];
+  plans: { code: string; name: string; orgs: string }[];
+  recent: { id: string; email: string; full_name: string | null; created_at: string; org_name: string | null }[];
+}
+export interface AdminUserRow {
+  id: string; email: string; full_name: string | null;
+  is_platform_admin: boolean; created_at: string; org_count: number;
+}
+export interface AdminOrgRow {
+  id: string; name: string; slug: string; currency: string; created_at: string;
+  owner_email: string; plan_name: string | null; plan_code: string | null;
+  subscription_status: string | null; member_count: number; invoice_count: number; expense_count: number;
+}
+export interface AdminOrgDetail {
+  org: { id: string; name: string; slug: string; currency: string; country: string | null; created_at: string; owner_email: string; owner_name: string | null };
+  members: { id: string; user_id: string; role: string; joined_at: string; email: string; full_name: string | null }[];
+  subscription: { status: string; plan_name: string | null; plan_code: string | null; price_monthly: number | null; current_period_end: string | null; cancel_at_period_end: boolean } | null;
+  usage: { metric: string; used: string }[];
+  counts: { invoices: string; expenses: string; revenues: string; api_keys: string; invoiced_paid: string; revenue_total: string; expense_total: string };
+  audit: { id: string; action: string; resource_type: string | null; created_at: string; actor_email: string | null }[];
+}
+export interface AdminPlanRow {
+  id: string; code: string; name: string; price_monthly: number; price_annual: number | null;
+  quotas: Record<string, number | null>; features: Record<string, boolean>;
+  sort_order: number; is_public: boolean; active_orgs: number;
+}
+export interface AdminAuditRow {
+  id: string; action: string; resource_type: string | null; resource_id: string | null;
+  metadata: Record<string, unknown>; ip: string | null; created_at: string;
+  actor_email: string | null; org_name: string | null;
+}
+export interface AdminSystem {
+  status: string;
+  db: { ok: boolean; latencyMs: number | null };
+  integrations: { authMode: string; aiProvider: string | null; gemma: boolean; stripe: boolean; email: boolean; masterKey: boolean; rateLimitStore: string };
+  runtime: { node: string; env: string; uptimeSec: number; memoryMb: number; host: string };
+}
+interface Paginated<T> {
+  data: T[];
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+}
+
+export const adminApi = {
+  access: () => http.get<{ isAdmin: boolean }>("/admin/access"),
+  overview: () => http.get<AdminOverview>("/admin/overview"),
+  users: (opts: { q?: string; page?: number } = {}) =>
+    http.get<Paginated<AdminUserRow>>(`/admin/users${qs({ q: opts.q, page: opts.page })}`),
+  setUserAdmin: (id: string, isPlatformAdmin: boolean) =>
+    http.patch<{ user: AdminUserRow }>(`/admin/users/${id}`, { isPlatformAdmin }),
+  deleteUser: (id: string) => http.del<null>(`/admin/users/${id}`),
+  orgs: (opts: { q?: string; page?: number } = {}) =>
+    http.get<Paginated<AdminOrgRow>>(`/admin/orgs${qs({ q: opts.q, page: opts.page })}`),
+  orgDetail: (id: string) => http.get<AdminOrgDetail>(`/admin/orgs/${id}`),
+  setOrgSubscription: (id: string, patch: { planCode?: string; status?: string }) =>
+    http.patch<{ subscription: unknown }>(`/admin/orgs/${id}/subscription`, patch),
+  plans: () => http.get<{ plans: AdminPlanRow[] }>("/admin/plans"),
+  updatePlan: (id: string, patch: Record<string, unknown>) =>
+    http.patch<{ plan: AdminPlanRow }>(`/admin/plans/${id}`, patch),
+  usage: () =>
+    http.get<{
+      byMetric: { metric: string; used: string; orgs: number }[];
+      topOrgs: { id: string; name: string; ai_credits: string; plan_name: string | null; ai_limit: string | null }[];
+    }>("/admin/usage"),
+  audit: (opts: { orgId?: string; action?: string; page?: number } = {}) =>
+    http.get<Paginated<AdminAuditRow>>(`/admin/audit${qs({ orgId: opts.orgId, action: opts.action, page: opts.page })}`),
+  system: () => http.get<AdminSystem>("/admin/system"),
+};
+
 export const billingApi = {
   plans: () => http.get<{ plans: { id: string; code: string; name: string; price_monthly: number; quotas: Record<string, number | null> }[] }>("/billing/plans"),
   subscription: () =>

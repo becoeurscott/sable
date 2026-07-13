@@ -43,6 +43,13 @@ const schema = z.object({
   // Keep secret; only for your own scripts/admin. Unset = disabled.
   ADMIN_API_KEY: z.string().min(24).optional(),
 
+  // Platform admins: comma-separated emails that can access the /admin API
+  // (in addition to users flagged is_platform_admin in the database).
+  PLATFORM_ADMIN_EMAILS: z
+    .string()
+    .default('')
+    .transform((s) => s.split(',').map((e) => e.trim().toLowerCase()).filter(Boolean)),
+
   RATE_LIMIT_STORE: z.enum(['memory', 'redis']).default('memory'),
   REDIS_URL: z.string().optional(),
 });

@@ -7,6 +7,7 @@ import { DISPLAY, GRAD } from "../theme";
 import { appNav, appMeta } from "../data";
 import { AppProvider } from "./app-context";
 import { useAuth } from "../lib/auth-context";
+import { adminApi } from "../lib/api";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -20,6 +21,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setNavOpen(false);
   }, [pathname]);
+
+  // Show the Admin link only to platform admins.
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    if (!user) return;
+    adminApi.access().then((r) => setIsAdmin(r.isAdmin)).catch(() => setIsAdmin(false));
+  }, [user]);
 
   // Auth guard — bounce to /login once the session has finished restoring.
   useEffect(() => {
@@ -84,6 +92,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             })}
           </div>
           <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 3 }}>
+            {isAdmin && (
+              <Link href="/admin" style={{ display: "flex", alignItems: "center", gap: 11, padding: "10px 11px", borderRadius: 10, cursor: "pointer", fontSize: 13.5, fontWeight: 600, color: "#F0A34A", background: "rgba(240,163,74,.1)", border: "1px solid rgba(240,163,74,.25)", marginBottom: 10 }}>
+                <span style={{ width: 18, textAlign: "center" }}>⚙</span>Admin dashboard
+              </Link>
+            )}
             <div style={{ background: "#101A32", border: "1px solid #1D2A47", borderRadius: 12, padding: 13, marginBottom: 12 }}>
               <div style={{ fontSize: 11, color: "#8A93A3", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 6 }}>Growth plan</div>
               <div style={{ fontSize: 12, color: "#9AA6BC", marginBottom: 8 }}>1,240 / 2,000 AI credits</div>
